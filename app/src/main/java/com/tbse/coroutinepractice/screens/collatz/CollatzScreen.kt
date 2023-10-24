@@ -19,7 +19,9 @@ import androidx.compose.ui.tooling.preview.PreviewParameter
 import androidx.compose.ui.tooling.preview.PreviewParameterProvider
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 
 /**
  * Created by toddsmith on 10/22/23.
@@ -32,7 +34,7 @@ fun CollatzScreen(
 ) {
 
     val collatzViewModel: CollatzViewModel = viewModel()
-    val time = collatzViewModel.countDownFlow.collectAsState(0).value
+    val time = collatzViewModel.sequenceFlow.collectAsState(0).value
 
     var textState by remember { mutableStateOf("1") }
 
@@ -68,7 +70,9 @@ fun CollatzScreen(
         )
         Button(
             onClick = {
-                collatzViewModel.startingNumberFlow.value = textState.toIntOrNull() ?: 1
+                collatzViewModel.viewModelScope.launch {
+                    collatzViewModel.startingNumberFlow.emit(textState.toIntOrNull() ?: 1)
+                }
             },
             modifier = Modifier
                 .padding(16.dp)
